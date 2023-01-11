@@ -39,8 +39,53 @@ enum TierData{
 	MAX_CHANCE
 }
 
+enum RandomizerData {
+	ITEM_CATEGORIES,
+	ITEM_ARMOR,
+	ITEM_ATTACK_SPEED,
+	ITEM_CRIT_CHANCE,
+	ITEM_DODGE,
+	ITEM_ELEMENTAL_DAMAGE,
+	ITEM_ENGINEERING,
+	ITEM_HARVESTING,
+	ITEM_HP_REGEN,
+	ITEM_LIFESTEAL,
+	ITEM_LUCK,
+	ITEM_MAX_HP,
+	ITEM_MELEE_DAMAGE,
+	ITEM_PERCENT_DAMAGE,
+	ITEM_RANDOM,
+	ITEM_RANGE,
+	ITEM_RANGED_DAMAGE,
+	ITEM_SECONDARY,
+	ITEM_SPEED
+}
+
+const randomizer_item_stat_keys = {
+	"item_categories": RandomizerData.ITEM_CATEGORIES,
+	"stat_armor": RandomizerData.ITEM_ARMOR,
+	"stat_attack_speed": RandomizerData.ITEM_ATTACK_SPEED,
+	"stat_crit_chance": RandomizerData.ITEM_CRIT_CHANCE,
+	"stat_dodge": RandomizerData.ITEM_DODGE,
+	"stat_elemental_damage": RandomizerData.ITEM_ELEMENTAL_DAMAGE,
+	"stat_engineering": RandomizerData.ITEM_ENGINEERING,
+	"stat_harvesting": RandomizerData.ITEM_HARVESTING,
+	"stat_hp_regeneration": RandomizerData.ITEM_HP_REGEN,
+	"stat_lifesteal": RandomizerData.ITEM_LIFESTEAL,
+	"stat_luck": RandomizerData.ITEM_LUCK,
+	"stat_max_hp": RandomizerData.ITEM_MAX_HP,
+	"stat_melee_damage": RandomizerData.ITEM_MELEE_DAMAGE,
+	"stat_percent_damage": RandomizerData.ITEM_PERCENT_DAMAGE,
+	"stat_random": RandomizerData.ITEM_RANDOM,
+	"stat_range": RandomizerData.ITEM_RANGE,
+	"stat_ranged_damage": RandomizerData.ITEM_RANGED_DAMAGE,
+	"stat_secondary": RandomizerData.ITEM_SECONDARY,
+	"stat_speed": RandomizerData.ITEM_SPEED
+}
+
 var _all_items: = []
 var _tiers_data:Array
+var _randomizer_data:Dictionary
 
 export (Array, Resource) var elites: = []
 export (Array, Resource) var effects: = []
@@ -52,6 +97,7 @@ export (Array, Resource) var consumables: = []
 export (Array, Resource) var upgrades: = []
 export (Array, Resource) var sets: = []
 export (Array, Resource) var difficulties: = []
+export (Array, Resource) var randomizer_categories: = []
 export (Resource) var item_box = null
 export (Resource) var legendary_item_box = null
 export (Resource) var upgrade_to_process_icon = null
@@ -64,7 +110,7 @@ func _ready()->void :
 
 func reset_tiers_data()->void :
 		_tiers_data = [
-		[[], [], [], [], [], 0, 1.0, 0.0, 1.0], 
+		[[], [], [], [], [], 0, 1.0, 0.0, 1.0],
 		[[], [], [], [], [], 0, 0.0, 0.06, 0.6], 
 		[[], [], [], [], [], 2, 0.0, 0.02, 0.25], 
 		[[], [], [], [], [], 6, 0.0, 0.0023, 0.08]
@@ -74,6 +120,9 @@ func reset_tiers_data()->void :
 func init_unlocked_pool()->void :
 	
 	reset_tiers_data()
+	
+	## empties the randomizer
+	_randomizer_data = {}
 	
 	for item in items:
 		if ProgressData.items_unlocked.has(item.my_id):
@@ -92,7 +141,44 @@ func init_unlocked_pool()->void :
 	for consumable in consumables:
 		if ProgressData.consumables_unlocked.has(consumable.my_id):
 			_tiers_data[consumable.tier][TierData.CONSUMABLES].push_back(consumable)
+			
+	
+	init_randomizer_pool()
 
+func init_randomizer_pool()->void:
+	
+	## initializing arrays
+	for randomizer_entry in RandomizerData:
+		_randomizer_data[randomizer_entry] = []
+	
+	## adding randomizer categories
+	_randomizer_data[RandomizerData.CATEGORIES] = []
+	
+	
+	for item in items:
+		if ProgressData.items_unlocked.has(item.my_id):
+			## always added to random
+			_randomizer_data.get(RandomizerData.ITEM_RANDOM).push_back(item)
+			
+			# adds item to a category based on its tags
+			for tag in item.tags:
+				if randomizer_item_stat_keys.keys().has(tag):
+					var key = randomizer_item_stat_keys.get(tag)
+					_randomizer_data.get(key).push_back(item)
+				else:
+					_randomizer_data.get(RandomizerData.ITEM_SECONDARY).push_back(item)
+			
+			## also adds based on its effects, be it positive or negative
+			for effect in item.effects:
+				## checks whether it's a tracked key
+				if randomizer_item_stat_keys.keys().has(effect.key):
+					var key = randomizer_item_stat_keys.get(effect.key)
+					# if the item was already added due to its tag, do not add again
+					if not _randomizer_data.get(key).has(item):
+						_randomizer_data.get(key).push_back(item)
+				elif _randomizer_data.get(RandomizerData.ITEM_SECONDARY).has(item):
+					_randomizer_data.get(RandomizerData.ITEM_SECONDARY).push_back(item)
+	
 
 func get_consumable_to_drop(tier:int = Tier.COMMON)->ConsumableData:
 	return Utils.get_rand_element(_tiers_data[tier][TierData.CONSUMABLES])
@@ -168,7 +254,8 @@ func get_rand_item_from_wave(wave:int, type:int, shop_items:Array = [], prev_sho
 	var backup_pool = get_pool(item_tier, type)
 	var items_to_remove = []
 	
-
+	var categories_pool:Array = _randomizer_data[RandomizerData.CATEGORIES].duplicate()
+	
 	
 	for shop_item in excluded_items:
 
@@ -241,41 +328,29 @@ func get_rand_item_from_wave(wave:int, type:int, shop_items:Array = [], prev_sho
 						items_to_remove.push_back(item)
 	
 	elif type == TierData.ITEMS and randf() < CHANCE_WANTED_ITEM_TAG and RunData.current_character.wanted_tags.size() > 0:
-
-		for item in pool:
+		
+		var categories_to_remove:Array = []
+		## selects only categories favored to the current char
+		for category in categories_pool:
 			var has_wanted_tag = false
 			
-			for tag in item.tags:
-				if RunData.current_character.wanted_tags.has(tag):
+			for tag in RunData.current_character.wanted_tags:
+				if category.shop_category_id == tag:
 					has_wanted_tag = true
 					break
 			
-			if not has_wanted_tag:
-				items_to_remove.push_back(item)
+			if not has_wanted_tag and not category.shop_category_id == "stat_secondary":
+				categories_to_remove.push_back(category)
 		
-
+		## remove other categories from the pool
+		for category in categories_to_remove:
+			categories_pool.erase(category);
+		
 	
-	var limited_items = {}
-	
-	for item in RunData.items:
-		if item.unique:
-			backup_pool.erase(item)
-			items_to_remove.push_back(item)
-		elif item.max_nb != - 1:
-			if limited_items.has(item.my_id):
-				limited_items[item.my_id][1] += 1
-			else :
-				limited_items[item.my_id] = [item, 1]
-	
-	for key in limited_items:
-		if limited_items[key][1] >= limited_items[key][0].max_nb:
-			backup_pool.erase(limited_items[key][0])
-			items_to_remove.push_back(limited_items[key][0])
-	
-	for item in items_to_remove:
-		pool.erase(item)
-	
-
+	## if its item, already return categories as an item
+	if type == TierData.ITEMS:
+		var random_cat = Utils.get_rand_element(categories_pool)
+		return convert_randomizer_category_to_item(random_cat)
 	
 	var elt
 	
@@ -291,6 +366,15 @@ func get_rand_item_from_wave(wave:int, type:int, shop_items:Array = [], prev_sho
 	
 	return elt
 
+func convert_randomizer_category_to_item(category:ShopCategoryData)->ItemParentData:
+		var item_element:ItemParentData = ItemParentData.new()
+		item_element.icon = category.icon
+		item_element.my_id = category.shop_category_id
+		item_element.name = category.name
+		
+		## random number
+		item_element.value = 15
+		return item_element
 
 func get_tier_from_wave(wave:int)->int:
 	var rand = rand_range(0.0, 1.0)

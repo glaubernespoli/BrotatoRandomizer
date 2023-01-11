@@ -1,4 +1,4 @@
-[gd_scene load_steps=490 format=2]
+[gd_scene load_steps=508 format=2]
 
 [ext_resource path="res://singletons/item_service.gd" type="Script" id=1]
 [ext_resource path="res://weapons/melee/spear/1/spear_data.tres" type="Resource" id=2]
@@ -489,6 +489,24 @@
 [ext_resource path="res://items/characters/streamer/streamer_data.tres" type="Resource" id=487]
 [ext_resource path="res://items/all/community_support/community_support_data.tres" type="Resource" id=488]
 [ext_resource path="res://items/upgrades/stat_materials.tres" type="Resource" id=489]
+[ext_resource path="res://items/randomizer_categories/armor.tres" type="Resource" id=100001]
+[ext_resource path="res://items/randomizer_categories/attack_speed.tres" type="Resource" id=100002]
+[ext_resource path="res://items/randomizer_categories/crit_chance.tres" type="Resource" id=100003]
+[ext_resource path="res://items/randomizer_categories/dodge.tres" type="Resource" id=100004]
+[ext_resource path="res://items/randomizer_categories/elemental_damage.tres" type="Resource" id=100005]
+[ext_resource path="res://items/randomizer_categories/engineering.tres" type="Resource" id=100006]
+[ext_resource path="res://items/randomizer_categories/harvesting.tres" type="Resource" id=100007]
+[ext_resource path="res://items/randomizer_categories/hp_regeneration.tres" type="Resource" id=100008]
+[ext_resource path="res://items/randomizer_categories/lifesteal.tres" type="Resource" id=100009]
+[ext_resource path="res://items/randomizer_categories/luck.tres" type="Resource" id=100010]
+[ext_resource path="res://items/randomizer_categories/max_hp.tres" type="Resource" id=100011]
+[ext_resource path="res://items/randomizer_categories/melee_damage.tres" type="Resource" id=100012]
+[ext_resource path="res://items/randomizer_categories/percent_damage.tres" type="Resource" id=100013]
+[ext_resource path="res://items/randomizer_categories/random.tres" type="Resource" id=100014]
+[ext_resource path="res://items/randomizer_categories/range.tres" type="Resource" id=100015]
+[ext_resource path="res://items/randomizer_categories/ranged_damage.tres" type="Resource" id=100016]
+[ext_resource path="res://items/randomizer_categories/secondary.tres" type="Resource" id=100017]
+[ext_resource path="res://items/randomizer_categories/speed.tres" type="Resource" id=100018]
 
 [node name="ItemService" type="Node"]
 script = ExtResource( 1 )
@@ -502,6 +520,7 @@ consumables = [ ExtResource( 53 ) ]
 upgrades = [ ExtResource( 79 ), ExtResource( 55 ), ExtResource( 77 ), ExtResource( 85 ), ExtResource( 78 ), ExtResource( 81 ), ExtResource( 82 ), ExtResource( 83 ), ExtResource( 108 ), ExtResource( 99 ), ExtResource( 98 ), ExtResource( 121 ), ExtResource( 117 ), ExtResource( 111 ), ExtResource( 105 ), ExtResource( 109 ), ExtResource( 114 ), ExtResource( 95 ), ExtResource( 91 ), ExtResource( 112 ), ExtResource( 97 ), ExtResource( 116 ), ExtResource( 86 ), ExtResource( 90 ), ExtResource( 102 ), ExtResource( 118 ), ExtResource( 89 ), ExtResource( 101 ), ExtResource( 84 ), ExtResource( 93 ), ExtResource( 113 ), ExtResource( 120 ), ExtResource( 94 ), ExtResource( 87 ), ExtResource( 103 ), ExtResource( 88 ), ExtResource( 92 ), ExtResource( 124 ), ExtResource( 130 ), ExtResource( 126 ), ExtResource( 125 ), ExtResource( 138 ), ExtResource( 131 ), ExtResource( 139 ), ExtResource( 136 ), ExtResource( 134 ), ExtResource( 132 ), ExtResource( 135 ), ExtResource( 133 ), ExtResource( 65 ), ExtResource( 67 ), ExtResource( 70 ), ExtResource( 107 ), ExtResource( 62 ), ExtResource( 76 ), ExtResource( 80 ), ExtResource( 75 ), ExtResource( 74 ), ExtResource( 115 ), ExtResource( 212 ), ExtResource( 343 ), ExtResource( 340 ), ExtResource( 345 ), ExtResource( 341 ) ]
 sets = [ ExtResource( 163 ), ExtResource( 169 ), ExtResource( 170 ), ExtResource( 165 ), ExtResource( 166 ), ExtResource( 167 ), ExtResource( 164 ), ExtResource( 168 ), ExtResource( 337 ), ExtResource( 336 ), ExtResource( 335 ), ExtResource( 427 ), ExtResource( 428 ), ExtResource( 472 ) ]
 difficulties = [ ExtResource( 351 ), ExtResource( 353 ), ExtResource( 349 ), ExtResource( 348 ), ExtResource( 354 ), ExtResource( 352 ) ]
+randomizer_categories = [ ExtResource( 100001 ), ExtResource( 100002 ), ExtResource( 100003 ), ExtResource( 100004 ), ExtResource( 100005 ), ExtResource( 100006 ), ExtResource( 100007 ), ExtResource( 100008 ), ExtResource( 100009 ), ExtResource( 100010 ), ExtResource( 100011 ), ExtResource( 100012 ), ExtResource( 100013 ), ExtResource( 100014 ), ExtResource( 100015 ), ExtResource( 100016 ), ExtResource( 100017 ), ExtResource( 100018 ) ]
 item_box = ExtResource( 54 )
 legendary_item_box = ExtResource( 480 )
 upgrade_to_process_icon = ExtResource( 56 )
