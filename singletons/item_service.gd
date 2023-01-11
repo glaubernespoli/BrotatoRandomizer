@@ -157,7 +157,7 @@ func init_randomizer_pool()->void:
 		_randomizer_data[randomizer_entry] = []
 	
 	## adding randomizer categories
-	get_randomizer_data_value_from_entry(RandomizerData.ITEM_CATEGORIES).append_array(randomizer_categories)
+	get_randomizer_data_values_from_entry(RandomizerData.ITEM_CATEGORIES).append_array(randomizer_categories)
 	
 	
 	for item in items:
@@ -182,19 +182,19 @@ func init_randomizer_pool()->void:
 				if randomizer_item_stat_keys.keys().has(effect.key):
 					var category = randomizer_item_stat_keys.get(effect.key)
 					# if the item was already added due to its tag, do not add again
-					if not get_randomizer_data_value_from_entry(category).has(item):
+					if not get_randomizer_data_values_from_entry(category).has(item):
 						push_item_to_randomizer_category(item, category, categories_added_to)
-				elif get_randomizer_data_value_from_entry(RandomizerData.ITEM_SECONDARY).has(item):
+				elif get_randomizer_data_values_from_entry(RandomizerData.ITEM_SECONDARY).has(item):
 					push_item_to_randomizer_category(item, RandomizerData.ITEM_SECONDARY, categories_added_to)
 
 #utility function to deal with how enums as a key work in GDScript
-func get_randomizer_data_value_from_entry(entry)->Array:
+func get_randomizer_data_values_from_entry(entry)->Array:
 	return _randomizer_data[RandomizerData.keys()[entry]]
 
 #adds an item to a category if it hasn't been added to that category yet
 func push_item_to_randomizer_category(item, category, categories_added_to)->void:
 	if not categories_added_to.has(category):
-		get_randomizer_data_value_from_entry(category).push_back(item)
+		get_randomizer_data_values_from_entry(category).push_back(item)
 		categories_added_to.push_back(category)
 
 func get_consumable_to_drop(tier:int = Tier.COMMON)->ConsumableData:
@@ -271,7 +271,7 @@ func get_rand_item_from_wave(wave:int, type:int, shop_items:Array = [], prev_sho
 	var backup_pool = get_pool(item_tier, type)
 	var items_to_remove = []
 	
-	var categories_pool:Array = _randomizer_data[RandomizerData.CATEGORIES].duplicate()
+	var categories_pool:Array = get_randomizer_data_values_from_entry(RandomizerData.ITEM_CATEGORIES).duplicate()
 	
 	
 	for shop_item in excluded_items:
@@ -363,9 +363,15 @@ func get_rand_item_from_wave(wave:int, type:int, shop_items:Array = [], prev_sho
 		for category in categories_to_remove:
 			categories_pool.erase(category);
 		
+		print("Prefered categories:")
+		print(categories_pool)
+		
 	
 	## if its item, already return categories as an item
 	if type == TierData.ITEMS:
+		
+		print("Getting an element of one of the following categories:")
+		print(categories_pool)
 		var random_cat = Utils.get_rand_element(categories_pool)
 		return convert_randomizer_category_to_item(random_cat)
 	
@@ -391,6 +397,9 @@ func convert_randomizer_category_to_item(category:ShopCategoryData)->ItemParentD
 		
 		## random number
 		item_element.value = 15
+		
+		print("Category as item:")
+		print(item_element)
 		return item_element
 
 func get_tier_from_wave(wave:int)->int:
