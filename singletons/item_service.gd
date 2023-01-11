@@ -39,6 +39,7 @@ enum TierData{
 	MAX_CHANCE
 }
 
+## different data types from the randomizer
 enum RandomizerData {
 	ITEM_CATEGORIES,
 	ITEM_ARMOR,
@@ -61,6 +62,8 @@ enum RandomizerData {
 	ITEM_SPEED
 }
 
+
+## to which data type a single key should point to
 const randomizer_item_stat_keys = {
 	"item_categories": RandomizerData.ITEM_CATEGORIES,
 	"stat_armor": RandomizerData.ITEM_ARMOR,
@@ -120,9 +123,7 @@ func reset_tiers_data()->void :
 func init_unlocked_pool()->void :
 	
 	reset_tiers_data()
-	
-	## empties the randomizer
-	_randomizer_data = {}
+	reset_randomizer_data()
 	
 	for item in items:
 		if ProgressData.items_unlocked.has(item.my_id):
@@ -145,6 +146,10 @@ func init_unlocked_pool()->void :
 	
 	init_randomizer_pool()
 
+## empties the data
+func reset_randomizer_data()->void :
+	_randomizer_data = {}
+
 func init_randomizer_pool()->void:
 	
 	## initializing arrays
@@ -152,33 +157,45 @@ func init_randomizer_pool()->void:
 		_randomizer_data[randomizer_entry] = []
 	
 	## adding randomizer categories
-	_randomizer_data[RandomizerData.CATEGORIES] = []
+	get_randomizer_data_value_from_entry(RandomizerData.ITEM_CATEGORIES).append_array(randomizer_categories)
 	
 	
 	for item in items:
 		if ProgressData.items_unlocked.has(item.my_id):
+			
+			var categories_added_to = []
+			
 			## always added to random
-			_randomizer_data.get(RandomizerData.ITEM_RANDOM).push_back(item)
+			push_item_to_randomizer_category(item, RandomizerData.ITEM_RANDOM, categories_added_to)
 			
 			# adds item to a category based on its tags
 			for tag in item.tags:
 				if randomizer_item_stat_keys.keys().has(tag):
-					var key = randomizer_item_stat_keys.get(tag)
-					_randomizer_data.get(key).push_back(item)
+					var category = randomizer_item_stat_keys.get(tag)
+					push_item_to_randomizer_category(item, category, categories_added_to)
 				else:
-					_randomizer_data.get(RandomizerData.ITEM_SECONDARY).push_back(item)
+					push_item_to_randomizer_category(item, RandomizerData.ITEM_SECONDARY, categories_added_to)
 			
 			## also adds based on its effects, be it positive or negative
 			for effect in item.effects:
 				## checks whether it's a tracked key
 				if randomizer_item_stat_keys.keys().has(effect.key):
-					var key = randomizer_item_stat_keys.get(effect.key)
+					var category = randomizer_item_stat_keys.get(effect.key)
 					# if the item was already added due to its tag, do not add again
-					if not _randomizer_data.get(key).has(item):
-						_randomizer_data.get(key).push_back(item)
-				elif _randomizer_data.get(RandomizerData.ITEM_SECONDARY).has(item):
-					_randomizer_data.get(RandomizerData.ITEM_SECONDARY).push_back(item)
-	
+					if not get_randomizer_data_value_from_entry(category).has(item):
+						push_item_to_randomizer_category(item, category, categories_added_to)
+				elif get_randomizer_data_value_from_entry(RandomizerData.ITEM_SECONDARY).has(item):
+					push_item_to_randomizer_category(item, RandomizerData.ITEM_SECONDARY, categories_added_to)
+
+#utility function to deal with how enums as a key work in GDScript
+func get_randomizer_data_value_from_entry(entry)->Array:
+	return _randomizer_data[RandomizerData.keys()[entry]]
+
+#adds an item to a category if it hasn't been added to that category yet
+func push_item_to_randomizer_category(item, category, categories_added_to)->void:
+	if not categories_added_to.has(category):
+		get_randomizer_data_value_from_entry(category).push_back(item)
+		categories_added_to.push_back(category)
 
 func get_consumable_to_drop(tier:int = Tier.COMMON)->ConsumableData:
 	return Utils.get_rand_element(_tiers_data[tier][TierData.CONSUMABLES])
