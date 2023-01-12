@@ -197,6 +197,14 @@ func push_item_to_randomizer_category(item, category, categories_added_to)->void
 		get_randomizer_data_values_from_entry(category).push_back(item)
 		categories_added_to.push_back(category)
 
+## returns a random item based on the id of the category that was passed as a mocked item to the shop
+func get_random_item_from_randomizer_category(item)->ItemParentData:
+
+	var items = get_randomizer_data_values_from_entry(randomizer_item_stat_keys.get(item.my_id))
+	return Utils.get_rand_element(items)
+
+
+
 func get_consumable_to_drop(tier:int = Tier.COMMON)->ConsumableData:
 	return Utils.get_rand_element(_tiers_data[tier][TierData.CONSUMABLES])
 
@@ -363,15 +371,9 @@ func get_rand_item_from_wave(wave:int, type:int, shop_items:Array = [], prev_sho
 		for category in categories_to_remove:
 			categories_pool.erase(category);
 		
-		print("Prefered categories:")
-		print(categories_pool)
-		
 	
-	## if its item, already return categories as an item
+	## RANDOMIZER - if its item, already return categories as an item
 	if type == TierData.ITEMS:
-		
-		print("Getting an element of one of the following categories:")
-		print(categories_pool)
 		var random_cat = Utils.get_rand_element(categories_pool)
 		return convert_randomizer_category_to_item(random_cat)
 	
@@ -389,17 +391,15 @@ func get_rand_item_from_wave(wave:int, type:int, shop_items:Array = [], prev_sho
 	
 	return elt
 
-func convert_randomizer_category_to_item(category:ShopCategoryData)->ItemParentData:
-		var item_element:ItemParentData = ItemParentData.new()
+## RANDOMIZER - converts a randomizer category to a Item data that is recognized by the game
+func convert_randomizer_category_to_item(category:ShopCategoryData)->ItemData:
+		var item_element:ItemData = ItemData.new()
 		item_element.icon = category.icon
 		item_element.my_id = category.shop_category_id
 		item_element.name = category.name
 		
-		## random number
+		## random numberfor price
 		item_element.value = 15
-		
-		print("Category as item:")
-		print(item_element)
 		return item_element
 
 func get_tier_from_wave(wave:int)->int:

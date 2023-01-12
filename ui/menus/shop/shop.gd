@@ -271,9 +271,9 @@ func on_shop_item_bought(shop_item:ShopItem)->void :
 		var base_value = ItemService.get_value(shop_item.wave_value, shop_item.item_data.value, false, shop_item.item_data is WeaponData)
 		RunData.tracked_item_effects["item_coupon"] += (base_value * coupon_effect) as int
 	
-	emit_signal("item_bought", shop_item.item_data)
-	
 	if shop_item.item_data.get_category() == Category.ITEM:
+		## RANDOMIZER - adds a random item based on the category
+		shop_item.item_data = ItemService.get_random_item_from_randomizer_category(shop_item.item_data)
 		RunData.add_item(shop_item.item_data)
 	elif shop_item.item_data.get_category() == Category.WEAPON:
 		if not RunData.has_weapon_slot_available(shop_item.item_data.type):
@@ -286,6 +286,8 @@ func on_shop_item_bought(shop_item:ShopItem)->void :
 			RunData.add_weapon(shop_item.item_data)
 			_weapons_container.set_label(get_weapons_label_text())
 	
+	
+	emit_signal("item_bought", shop_item.item_data)
 	_stats_container.update_stats()
 	_shop_items_container.reload_shop_items_descriptions()
 	
