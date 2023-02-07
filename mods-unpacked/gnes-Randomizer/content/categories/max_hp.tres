@@ -1,0 +1,10 @@
+[gd_resource type="Resource" load_steps=3 format=2]
+
+[ext_resource path="res://items/stats/max_hp.png" type="Texture" id=1]
+[ext_resource path="res://mods-unpacked/gnes-Randomizer/content/items/global/item_shop_category_data.gd" type="Script" id=2]
+
+[resource]
+script = ExtResource( 2 )
+shop_category_id = "stat_max_hp"
+icon = ExtResource( 1 )
+name = "Max HP"

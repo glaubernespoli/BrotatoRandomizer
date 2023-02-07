@@ -1,0 +1,18 @@
+{
+  "name": "Randomizer",
+  "namespace": "gnes",
+  "version_number": "0.1.0",
+  "description": "A Brotato Randomizer! Shop offers which stats you wanna buy, and you get a random item containing that stat. Can be good or bad!",
+  "website_url": "https://github.com/glaubernespoli/BrotatoRandomizer",
+  "dependencies": ["Darkly77-ContentLoader"],
+  "incompatibilities": [],
+  "extra": {
+    "godot": {
+      "incompatibilities": [],
+      "authors": ["gnes"],
+      "compatible_mod_loader_version": "4.0.0",
+      "compatible_game_version": ["0.6.1.6"],
+      "config_defaults": {}
+    }
+  }
+}
